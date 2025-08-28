@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self';">
+    <title>Deep Learning Master</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Custom Title Bar -->
+        <div class="title-bar">
+            <div class="title-bar-left">
+                <img src="assets/icon.svg" alt="Deep Learning Master" class="app-icon">
+                <span class="app-title">Deep Learning Master</span>
+            </div>
+            <div class="title-bar-right">
+                <button class="title-bar-btn minimize-btn" id="minimize-btn">
+                    <svg width="12" height="12" viewBox="0 0 12 12">
+                        <path d="M2 6h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <button class="title-bar-btn maximize-btn" id="maximize-btn">
+                    <svg width="12" height="12" viewBox="0 0 12 12">
+                        <path d="M3 3h6v6H3z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    </svg>
+                </button>
+                <button class="title-bar-btn close-btn" id="close-btn">
+                    <svg width="12" height="12" viewBox="0 0 12 12">
+                        <path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar Toggle Button -->
+            <button class="sidebar-toggle" id="sidebar-toggle">
+                <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path class="hamburger-line line-1" d="M3 6h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path class="hamburger-line line-2" d="M3 10h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path class="hamburger-line line-3" d="M3 14h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            
+            <!-- Logo -->
+            <div class="app-logo" id="app-logo">
+                <span class="logo-text">Deep Learning</span>
+            </div>
+
+            <!-- Sidebar Navigation -->
+            <div class="sidebar">
+                <div class="nav-section">
+                    <div class="nav-section-title">LEARN</div>
+                    <nav class="nav-menu">
+                        <a href="#" class="nav-item active" data-page="perceptron">
+                            <span class="nav-icon">🧠</span>
+                            Perceptron
+                        </a>
+                        <a href="#" class="nav-item" data-page="neural-networks">
+                            <span class="nav-icon">🕸️</span>
+                            Neural Networks
+                            <span class="upcoming-badge">Soon</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="backpropagation">
+                            <span class="nav-icon">🔄</span>
+                            Backpropagation
+                            <span class="upcoming-badge">Soon</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="cnn">
+                            <span class="nav-icon">👁️</span>
+                            CNN
+                            <span class="upcoming-badge">Soon</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">PRACTICE</div>
+                    <nav class="nav-menu">
+                        <a href="#" class="nav-item" data-page="exercises">
+                            <span class="nav-icon">💪</span>
+                            Exercises
+                            <span class="upcoming-badge">Soon</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="projects">
+                            <span class="nav-icon">🚀</span>
+                            Projects
+                            <span class="upcoming-badge">Soon</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">TRACK</div>
+                    <nav class="nav-menu">
+                        <a href="#" class="nav-item" data-page="progress">
+                            <span class="nav-icon">📈</span>
+                            Progress
+                            <span class="upcoming-badge">Soon</span>
+                        </a>
+                        <a href="#" class="nav-item" data-page="achievements">
+                            <span class="nav-icon">🏆</span>
+                            Achievements
+                            <span class="upcoming-badge">Soon</span>
+                        </a>
+                    </nav>
+                </div>
+                
+                <div class="sidebar-version">
+                    Version 1.0.0
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Perceptron Page -->
+                <div class="page active" id="perceptron-page">
+                    <div class="page-header">
+                        <h1>Understanding Perceptron</h1>
+                        <p>Learn the fundamentals of the most basic artificial neuron</p>
+                    </div>
+                    
+                    <div class="lesson-content">
+                        <div class="lesson-section">
+                            <h2>What is a Perceptron?</h2>
+                            <p>A perceptron is the simplest type of artificial neural network and serves as the building block for more complex neural networks. It was invented by Frank Rosenblatt in 1958.</p>
+                            
+                            <div class="concept-card">
+                                <h3>Key Components</h3>
+                                <ul>
+                                    <li><strong>Inputs (x₁, x₂, ..., xₙ):</strong> The data fed into the perceptron</li>
+                                    <li><strong>Weights (w₁, w₂, ..., wₙ):</strong> Parameters that determine the importance of each input</li>
+                                    <li><strong>Bias (b):</strong> An additional parameter that helps shift the decision boundary</li>
+                                    <li><strong>Activation Function:</strong> Determines the output based on the weighted sum</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="lesson-section">
+                            <h2>Mathematical Formula</h2>
+                            <div class="formula-card">
+                                <div class="formula">
+                                    <p><strong>Weighted Sum:</strong> z = w₁x₁ + w₂x₂ + ... + wₙxₙ + b</p>
+                                    <p><strong>Output:</strong> y = f(z)</p>
+                                    <p><strong>Step Function:</strong> f(z) = 1 if z ≥ 0, else 0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lesson-section">
+                            <h2>Visual Representation</h2>
+                            <div class="perceptron-diagram">
+                                <div class="diagram-container">
+                                    <div class="inputs">
+                                        <div class="input-node">
+                                            <span>x₁</span>
+                                            <div class="weight-label">w₁</div>
+                                        </div>
+                                        <div class="input-node">
+                                            <span>x₂</span>
+                                            <div class="weight-label">w₂</div>
+                                        </div>
+                                        <div class="input-node">
+                                            <span>x₃</span>
+                                            <div class="weight-label">w₃</div>
+                                        </div>
+                                        <div class="bias-node">
+                                            <span>bias</span>
+                                            <div class="weight-label">b</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="connections">
+                                        <svg class="connection-lines">
+                                            <line x1="0" y1="20" x2="120" y2="60" stroke="#3b82f6" stroke-width="3"/>
+                                            <line x1="0" y1="60" x2="120" y2="60" stroke="#3b82f6" stroke-width="3"/>
+                                            <line x1="0" y1="100" x2="120" y2="60" stroke="#3b82f6" stroke-width="3"/>
+                                            <line x1="0" y1="140" x2="120" y2="60" stroke="#ef4444" stroke-width="3"/>
+                                        </svg>
+                                    </div>
+                                    
+                                    <div class="neuron">
+                                        <div class="neuron-body">
+                                            <span>Σ</span>
+                                            <div class="activation-function">f</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="output">
+                                        <div class="output-arrow">→</div>
+                                        <div class="output-node">
+                                            <span>y</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lesson-section">
+                            <h2>Interactive Demo</h2>
+                            <div class="demo-card">
+                                <h3>Adjust Parameters and See Results</h3>
+                                <div class="demo-controls">
+                                    <div class="control-group">
+                                        <label>Input 1 (x₁):</label>
+                                        <input type="range" id="input1" min="-5" max="5" value="1" step="0.1">
+                                        <span id="input1-value">1.0</span>
+                                    </div>
+                                    <div class="control-group">
+                                        <label>Input 2 (x₂):</label>
+                                        <input type="range" id="input2" min="-5" max="5" value="2" step="0.1">
+                                        <span id="input2-value">2.0</span>
+                                    </div>
+                                    <div class="control-group">
+                                        <label>Weight 1 (w₁):</label>
+                                        <input type="range" id="weight1" min="-2" max="2" value="0.5" step="0.1">
+                                        <span id="weight1-value">0.5</span>
+                                    </div>
+                                    <div class="control-group">
+                                        <label>Weight 2 (w₂):</label>
+                                        <input type="range" id="weight2" min="-2" max="2" value="0.3" step="0.1">
+                                        <span id="weight2-value">0.3</span>
+                                    </div>
+                                    <div class="control-group">
+                                        <label>Bias (b):</label>
+                                        <input type="range" id="bias" min="-2" max="2" value="0" step="0.1">
+                                        <span id="bias-value">0.0</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="calculation-result">
+                                    <div class="calculation-step">
+                                        <strong>Calculation:</strong>
+                                        <p id="calculation">z = (0.5 × 1.0) + (0.3 × 2.0) + 0.0 = 1.1</p>
+                                    </div>
+                                    <div class="output-result">
+                                        <strong>Output:</strong>
+                                        <span class="output-value" id="output-value">1</span>
+                                        <span class="output-explanation" id="output-explanation">(z ≥ 0, so output = 1)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lesson-section">
+                            <h2>Applications</h2>
+                            <div class="applications-grid">
+                                <div class="application-card">
+                                    <h3>Binary Classification</h3>
+                                    <p>Classify data into two categories (e.g., spam vs. not spam emails)</p>
+                                </div>
+                                <div class="application-card">
+                                    <h3>Logic Gates</h3>
+                                    <p>Implement AND, OR, and NOT operations</p>
+                                </div>
+                                <div class="application-card">
+                                    <h3>Linear Separable Problems</h3>
+                                    <p>Solve problems where data can be separated by a straight line</p>
+                                </div>
+                                <div class="application-card">
+                                    <h3>Feature Selection</h3>
+                                    <p>Identify important features in datasets</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lesson-section">
+                            <h2>Limitations</h2>
+                            <div class="limitation-card">
+                                <h3>XOR Problem</h3>
+                                <p>The perceptron cannot solve problems that are not linearly separable, such as the XOR (exclusive OR) problem. This limitation led to the development of multi-layer neural networks.</p>
+                                
+                                <div class="xor-example">
+                                    <h4>XOR Truth Table:</h4>
+                                    <table class="truth-table">
+                                        <tr>
+                                            <th>Input 1</th>
+                                            <th>Input 2</th>
+                                            <th>Output</th>
+                                        </tr>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>0</td>
+                                            <td>0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>1</td>
+                                            <td>1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>0</td>
+                                            <td>1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>1</td>
+                                            <td>0</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn btn-primary" id="next-lesson-btn">Next Lesson</button>
+                        <button class="btn btn-secondary" id="practice-btn">Practice Problems</button>
+                    </div>
+                </div>
+
+                <!-- Other pages placeholder -->
+                <div class="page" id="neural-networks-page">
+                    <div class="page-header">
+                        <h1>Neural Networks</h1>
+                        <p>Coming Soon...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
