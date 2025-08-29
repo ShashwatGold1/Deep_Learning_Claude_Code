@@ -394,6 +394,78 @@
                             </div>
                         </div>
 
+                        <!-- Function Building Visualization -->
+                        <div class="lesson-section">
+                            <h2>🔨 Function Construction</h2>
+                            <div class="function-builder-container">
+                                <div class="function-steps">
+                                    <div class="function-step" id="func-step-1">
+                                        <div class="step-header">Step 1: Linear Combination</div>
+                                        <div class="step-content">
+                                            <div class="function-formula">f₁(x₁,x₂) = w₁x₁ + w₂x₂ + b</div>
+                                            <div class="function-visual" id="linear-visual">
+                                                <canvas id="linear-function-canvas" width="200" height="120"></canvas>
+                                            </div>
+                                            <div class="step-description">Creates a linear combination of inputs</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="function-step" id="func-step-2">
+                                        <div class="step-header">Step 2: Threshold Application</div>
+                                        <div class="step-content">
+                                            <div class="function-formula">f₂(z) = step(z) = z ≥ 0 ? 1 : 0</div>
+                                            <div class="function-visual" id="threshold-visual">
+                                                <canvas id="threshold-function-canvas" width="200" height="120"></canvas>
+                                            </div>
+                                            <div class="step-description">Applies threshold to get binary output</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="function-step" id="func-step-3">
+                                        <div class="step-header">Step 3: Complete Perceptron</div>
+                                        <div class="step-content">
+                                            <div class="function-formula">y = f₂(f₁(x₁,x₂)) = step(w₁x₁ + w₂x₂ + b)</div>
+                                            <div class="function-visual" id="complete-visual">
+                                                <canvas id="complete-function-canvas" width="200" height="120"></canvas>
+                                            </div>
+                                            <div class="step-description">Final decision boundary function</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="function-animation-controls">
+                                    <button class="control-btn" id="animate-function-building">
+                                        <span class="btn-icon">🎬</span>
+                                        Show Function Building
+                                    </button>
+                                    <button class="control-btn" id="reset-function-animation">
+                                        <span class="btn-icon">🔄</span>
+                                        Reset Animation
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Enhanced Perceptron Diagram -->
+                        <div class="lesson-section">
+                            <h2>🧠 Interactive Perceptron Diagram</h2>
+                            <div class="enhanced-diagram-container">
+                                <div class="diagram-with-functions">
+                                    <canvas id="enhanced-perceptron-canvas" width="600" height="400"></canvas>
+                                    <div class="diagram-controls">
+                                        <button class="control-btn" id="animate-data-flow">
+                                            <span class="btn-icon">⚡</span>
+                                            Animate Data Flow
+                                        </button>
+                                        <button class="control-btn" id="show-calculations">
+                                            <span class="btn-icon">🔢</span>
+                                            Show Live Calculations
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Live Calculation Display -->
                         <div class="lesson-section">
                             <h2>🧮 Live Calculations</h2>
@@ -499,47 +571,119 @@
                             </div>
                         </div>
 
-                        <!-- Decision Boundary Visualization -->
+                        <!-- Enhanced Decision Boundary Visualization -->
                         <div class="lesson-section">
-                            <h2>🎯 Decision Boundary</h2>
-                            <div class="boundary-container">
-                                <canvas id="decision-boundary-canvas" width="400" height="400"></canvas>
-                                <div class="boundary-legend">
-                                    <div class="legend-item">
-                                        <div class="legend-color class0"></div>
-                                        <span>Target = 0</span>
+                            <h2>🎯 Decision Boundary Evolution</h2>
+                            <div class="enhanced-boundary-container">
+                                <div class="boundary-main">
+                                    <canvas id="decision-boundary-canvas" width="400" height="400"></canvas>
+                                    <div class="boundary-overlay" id="boundary-overlay">
+                                        <div class="boundary-equation" id="boundary-equation">w₁x₁ + w₂x₂ + b = 0</div>
                                     </div>
-                                    <div class="legend-item">
-                                        <div class="legend-color class1"></div>
-                                        <span>Target = 1</span>
+                                </div>
+                                
+                                <div class="boundary-info">
+                                    <div class="boundary-legend">
+                                        <div class="legend-item">
+                                            <div class="legend-color class0"></div>
+                                            <span>Target = 0</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <div class="legend-color class1"></div>
+                                            <span>Target = 1</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <div class="legend-line"></div>
+                                            <span>Decision Boundary</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <div class="legend-arrow"></div>
+                                            <span>Data Flow</span>
+                                        </div>
                                     </div>
-                                    <div class="legend-item">
-                                        <div class="legend-line"></div>
-                                        <span>Decision Boundary</span>
+                                    
+                                    <div class="boundary-stats">
+                                        <div class="stat-row">
+                                            <span class="stat-label">Current Equation:</span>
+                                            <span class="stat-value" id="current-boundary-eq">0x₁ + 0x₂ + 0 = 0</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span class="stat-label">Slope:</span>
+                                            <span class="stat-value" id="boundary-slope">undefined</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span class="stat-label">Y-intercept:</span>
+                                            <span class="stat-value" id="boundary-intercept">undefined</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Learning Explanation -->
+                        <!-- Enhanced Learning Explanation -->
                         <div class="lesson-section">
                             <h2>📚 How Perceptron Learning Works</h2>
-                            <div class="learning-explanation">
-                                <div class="explanation-step">
-                                    <h3>1. Forward Pass</h3>
-                                    <p>Calculate output using current weights: z = w₁x₁ + w₂x₂ + bias, then apply step function</p>
+                            <div class="enhanced-learning-explanation">
+                                <div class="learning-flow">
+                                    <div class="explanation-step" id="learn-step-1">
+                                        <div class="step-number">1</div>
+                                        <div class="step-content">
+                                            <h3>Forward Pass</h3>
+                                            <div class="step-formula">z = w₁x₁ + w₂x₂ + bias → y = step(z)</div>
+                                            <p>Calculate output using current weights and apply step function</p>
+                                            <div class="step-visual" id="forward-pass-visual">
+                                                <div class="data-flow-animation"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="explanation-step" id="learn-step-2">
+                                        <div class="step-number">2</div>
+                                        <div class="step-content">
+                                            <h3>Error Calculation</h3>
+                                            <div class="step-formula">error = target - output</div>
+                                            <p>Compare predicted output with target value</p>
+                                            <div class="step-visual" id="error-calc-visual">
+                                                <div class="error-indicator"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="explanation-step" id="learn-step-3">
+                                        <div class="step-number">3</div>
+                                        <div class="step-content">
+                                            <h3>Weight Update</h3>
+                                            <div class="step-formula">w_new = w_old + η × error × input</div>
+                                            <p>Adjust weights based on error to improve predictions</p>
+                                            <div class="step-visual" id="weight-update-visual">
+                                                <div class="weight-adjustment-animation"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="explanation-step" id="learn-step-4">
+                                        <div class="step-number">4</div>
+                                        <div class="step-content">
+                                            <h3>Convergence Check</h3>
+                                            <div class="step-formula">∑|errors| = 0 ? converged : continue</div>
+                                            <p>Continue until all samples are classified correctly</p>
+                                            <div class="step-visual" id="convergence-visual">
+                                                <div class="convergence-indicator"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="explanation-step">
-                                    <h3>2. Error Calculation</h3>
-                                    <p>Compare predicted output with target: error = target - output</p>
-                                </div>
-                                <div class="explanation-step">
-                                    <h3>3. Weight Update</h3>
-                                    <p>Adjust weights based on error: w_new = w_old + η × error × input</p>
-                                </div>
-                                <div class="explanation-step">
-                                    <h3>4. Repeat</h3>
-                                    <p>Continue until all samples are classified correctly (or max epochs reached)</p>
+                                
+                                <div class="learning-controls">
+                                    <button class="control-btn" id="animate-learning-process">
+                                        <span class="btn-icon">🎭</span>
+                                        Animate Learning Process
+                                    </button>
+                                    <div class="learning-speed-control">
+                                        <label>Animation Speed:</label>
+                                        <input type="range" id="learning-animation-speed" min="0.5" max="2" value="1" step="0.5">
+                                        <span id="learning-speed-value">1x</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -547,6 +691,7 @@
 
                     <div class="controls">
                         <button class="btn btn-secondary" id="back-to-basic">← Basic Perceptron</button>
+                        <button class="btn btn-primary" id="toggle-advanced-mode" title="Toggle advanced visualizations">🔬 Advanced Mode</button>
                         <button class="btn btn-primary" id="export-results">Export Results →</button>
                     </div>
                 </div>

@@ -139,6 +139,16 @@ document.getElementById('practice-btn').addEventListener('click', () => {
 // Initialize the demo when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     const demo = new PerceptronDemo();
+    
+    // Initialize enhanced features for the perceptron page
+    setTimeout(() => {
+        // Only initialize if we're on the enhanced perceptron page
+        if (document.getElementById('enhanced-perceptron-canvas')) {
+            const functionBuilder = new FunctionBuilder();
+            const enhancedDiagram = new EnhancedPerceptronDiagram();
+            const boundaryVisualizer = new BoundaryVisualizer();
+        }
+    }, 500);
 });
 
 // Perceptron Training Simulator Class
@@ -181,6 +191,14 @@ class PerceptronTrainingSimulator {
         this.initializeEventListeners();
         this.loadDataset();
         this.resetTraining();
+        
+        // Initialize enhanced features
+        this.functionBuilder = new FunctionBuilder();
+        this.enhancedDiagram = new EnhancedPerceptronDiagram();
+        this.boundaryVisualizer = new BoundaryVisualizer();
+        
+        // Setup enhanced animations
+        this.setupEnhancedAnimations();
     }
     
     initializeEventListeners() {
@@ -223,6 +241,40 @@ class PerceptronTrainingSimulator {
         document.getElementById('export-results')?.addEventListener('click', () => {
             this.exportResults();
         });
+        
+        // Enhanced feature controls
+        document.getElementById('animate-function-building')?.addEventListener('click', () => {
+            this.functionBuilder?.animateFunctionBuilding();
+        });
+        
+        document.getElementById('reset-function-animation')?.addEventListener('click', () => {
+            this.functionBuilder?.resetAnimation();
+        });
+        
+        document.getElementById('animate-data-flow')?.addEventListener('click', () => {
+            this.enhancedDiagram?.animateDataFlow();
+        });
+        
+        document.getElementById('show-calculations')?.addEventListener('click', () => {
+            this.enhancedDiagram?.showLiveCalculations();
+        });
+        
+        document.getElementById('animate-learning-process')?.addEventListener('click', () => {
+            this.animateLearningProcess();
+        });
+        
+        document.getElementById('toggle-advanced-mode')?.addEventListener('click', () => {
+            this.toggleAdvancedMode();
+        });
+        
+        // Learning animation speed control
+        const learningSpeedControl = document.getElementById('learning-animation-speed');
+        if (learningSpeedControl) {
+            learningSpeedControl.addEventListener('input', (e) => {
+                this.learningAnimationSpeed = parseFloat(e.target.value);
+                document.getElementById('learning-speed-value').textContent = this.learningAnimationSpeed + 'x';
+            });
+        }
     }
     
     loadDataset() {
@@ -236,6 +288,7 @@ class PerceptronTrainingSimulator {
         this.updateDataTable();
         this.updateTotalSamples();
         this.drawDecisionBoundary();
+        this.updateBoundaryStats();
     }
     
     updateDataTable() {
@@ -585,19 +638,40 @@ class PerceptronTrainingSimulator {
         }
         
         // Draw training data points
-        this.trainingData.forEach(sample => {
+        this.trainingData.forEach((sample, index) => {
             const canvasX = margin + sample.x1 * plotWidth;
             const canvasY = height - margin - sample.x2 * plotHeight;
             
+            // Enhanced point styling with current sample highlighting
+            const isCurrentSample = index === this.currentSampleIndex && this.isTraining;
+            const pointSize = isCurrentSample ? 12 : 8;
+            const glowSize = isCurrentSample ? 16 : 0;
+            
+            if (isCurrentSample) {
+                // Draw glow effect
+                ctx.fillStyle = sample.target === 0 ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)';
+                ctx.beginPath();
+                ctx.arc(canvasX, canvasY, glowSize, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
             ctx.fillStyle = sample.target === 0 ? '#ef4444' : '#10b981';
             ctx.beginPath();
-            ctx.arc(canvasX, canvasY, 8, 0, 2 * Math.PI);
+            ctx.arc(canvasX, canvasY, pointSize, 0, 2 * Math.PI);
             ctx.fill();
             
             // Add border
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = isCurrentSample ? '#fbbf24' : 'white';
+            ctx.lineWidth = isCurrentSample ? 3 : 2;
             ctx.stroke();
+            
+            // Show sample number if it's the current sample
+            if (isCurrentSample) {
+                ctx.fillStyle = '#374151';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${index + 1}`, canvasX, canvasY - 20);
+            }
         });
     }
     
@@ -621,6 +695,116 @@ class PerceptronTrainingSimulator {
         link.click();
         
         URL.revokeObjectURL(url);
+    }
+    
+    setupEnhancedAnimations() {
+        this.learningAnimationSpeed = 1;
+        this.advancedMode = false;
+        
+        // Initialize boundary stats update
+        this.updateBoundaryStats();
+        
+        // Setup continuous boundary equation update
+        this.boundaryUpdateInterval = setInterval(() => {
+            this.updateBoundaryStats();
+        }, 100);
+    }
+    
+    updateBoundaryStats() {
+        const equationElement = document.getElementById('current-boundary-eq');
+        const slopeElement = document.getElementById('boundary-slope');
+        const interceptElement = document.getElementById('boundary-intercept');
+        
+        if (equationElement) {
+            equationElement.textContent = 
+                `${this.weights.w1.toFixed(2)}x₁ + ${this.weights.w2.toFixed(2)}x₂ + ${this.weights.bias.toFixed(2)} = 0`;
+        }
+        
+        if (slopeElement && Math.abs(this.weights.w2) > 0.001) {
+            const slope = -this.weights.w1 / this.weights.w2;
+            slopeElement.textContent = slope.toFixed(3);
+        } else if (slopeElement) {
+            slopeElement.textContent = 'undefined';
+        }
+        
+        if (interceptElement && Math.abs(this.weights.w2) > 0.001) {
+            const intercept = -this.weights.bias / this.weights.w2;
+            interceptElement.textContent = intercept.toFixed(3);
+        } else if (interceptElement) {
+            interceptElement.textContent = 'undefined';
+        }
+    }
+    
+    animateLearningProcess() {
+        // Animate learning explanation steps
+        const steps = document.querySelectorAll('#learn-step-1, #learn-step-2, #learn-step-3, #learn-step-4');
+        
+        steps.forEach(step => step.classList.remove('animated'));
+        
+        steps.forEach((step, index) => {
+            setTimeout(() => {
+                step.classList.add('animated');
+                step.classList.add('slide-in-animation');
+                
+                // Add visual feedback for each step
+                const visual = step.querySelector('.step-visual > div');
+                if (visual) {
+                    visual.style.animationDelay = '0.3s';
+                    visual.classList.add('pulse-animation');
+                }
+                
+                setTimeout(() => {
+                    step.classList.remove('slide-in-animation');
+                    if (visual) {
+                        visual.classList.remove('pulse-animation');
+                    }
+                }, 1000 / this.learningAnimationSpeed);
+                
+            }, (index * 800) / this.learningAnimationSpeed);
+        });
+    }
+    
+    toggleAdvancedMode() {
+        this.advancedMode = !this.advancedMode;
+        const button = document.getElementById('toggle-advanced-mode');
+        
+        if (this.advancedMode) {
+            button.textContent = '🔬 Basic Mode';
+            button.title = 'Switch to basic visualizations';
+            this.enableAdvancedVisualizations();
+        } else {
+            button.textContent = '🔬 Advanced Mode';
+            button.title = 'Toggle advanced visualizations';
+            this.disableAdvancedVisualizations();
+        }
+    }
+    
+    enableAdvancedVisualizations() {
+        // Add advanced visual effects to training
+        const canvas = document.getElementById('decision-boundary-canvas');
+        if (canvas) {
+            canvas.classList.add('glow-animation');
+        }
+        
+        // Enable enhanced boundary overlay
+        const overlay = document.getElementById('boundary-overlay');
+        if (overlay) {
+            overlay.style.display = 'block';
+        }
+    }
+    
+    disableAdvancedVisualizations() {
+        // Remove advanced visual effects
+        const canvas = document.getElementById('decision-boundary-canvas');
+        if (canvas) {
+            canvas.classList.remove('glow-animation');
+        }
+        
+        // Disable enhanced boundary overlay
+        const overlay = document.getElementById('boundary-overlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
     }
     
     navigateToPage(pageId) {
@@ -1049,6 +1233,412 @@ class EnhancedPerceptronDemo {
         
         document.querySelector(`[data-page="${pageId}"]`)?.classList.add('active');
         document.getElementById(`${pageId}-page`)?.classList.add('active');
+    }
+}
+
+// Function Builder Class for visualizing function construction
+class FunctionBuilder {
+    constructor() {
+        this.currentStep = 0;
+        this.animationRunning = false;
+        this.setupCanvases();
+    }
+    
+    setupCanvases() {
+        // Initialize canvases for function visualization
+        setTimeout(() => {
+            this.drawLinearFunction();
+            this.drawThresholdFunction();
+            this.drawCompleteFunction();
+        }, 100);
+    }
+    
+    drawLinearFunction() {
+        const canvas = document.getElementById('linear-function-canvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw 3D-like representation of linear combination
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([]);
+        
+        // Draw axes
+        ctx.beginPath();
+        ctx.moveTo(20, canvas.height - 20);
+        ctx.lineTo(canvas.width - 20, canvas.height - 20);
+        ctx.moveTo(20, canvas.height - 20);
+        ctx.lineTo(20, 20);
+        ctx.stroke();
+        
+        // Draw linear combination surface (simplified)
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(30, canvas.height - 30);
+        ctx.lineTo(canvas.width - 30, 30);
+        ctx.stroke();
+        
+        // Add labels
+        ctx.fillStyle = '#374151';
+        ctx.font = '10px Inter';
+        ctx.fillText('w₁x₁ + w₂x₂ + b', canvas.width / 2 - 30, canvas.height - 5);
+    }
+    
+    drawThresholdFunction() {
+        const canvas = document.getElementById('threshold-function-canvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw step function
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        
+        // Left side (output = 0)
+        ctx.moveTo(20, canvas.height - 30);
+        ctx.lineTo(canvas.width / 2, canvas.height - 30);
+        
+        // Right side (output = 1)
+        ctx.moveTo(canvas.width / 2, 30);
+        ctx.lineTo(canvas.width - 20, 30);
+        ctx.stroke();
+        
+        // Vertical line at threshold
+        ctx.strokeStyle = '#6b7280';
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2, 30);
+        ctx.lineTo(canvas.width / 2, canvas.height - 30);
+        ctx.stroke();
+        
+        // Add labels
+        ctx.fillStyle = '#374151';
+        ctx.font = '10px Inter';
+        ctx.fillText('0', 30, canvas.height - 10);
+        ctx.fillText('1', canvas.width - 30, canvas.height - 10);
+        ctx.fillText('threshold', canvas.width / 2 - 20, canvas.height - 5);
+    }
+    
+    drawCompleteFunction() {
+        const canvas = document.getElementById('complete-function-canvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw decision boundary visualization
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+        ctx.fillRect(20, canvas.height / 2, canvas.width / 2 - 20, canvas.height / 2 - 20);
+        
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.3)';
+        ctx.fillRect(canvas.width / 2, 20, canvas.width / 2 - 20, canvas.height / 2);
+        
+        // Draw boundary line
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(20, 20);
+        ctx.lineTo(canvas.width - 20, canvas.height - 20);
+        ctx.stroke();
+        
+        // Add labels
+        ctx.fillStyle = '#374151';
+        ctx.font = '10px Inter';
+        ctx.fillText('Class 0', 30, canvas.height - 30);
+        ctx.fillText('Class 1', canvas.width - 60, 40);
+    }
+    
+    animateFunctionBuilding() {
+        if (this.animationRunning) return;
+        
+        this.animationRunning = true;
+        const steps = document.querySelectorAll('.function-step');
+        
+        // Reset all steps
+        steps.forEach(step => step.classList.remove('animated'));
+        
+        // Animate each step
+        steps.forEach((step, index) => {
+            setTimeout(() => {
+                step.classList.add('animated');
+                step.classList.add('pulse-animation');
+                
+                setTimeout(() => {
+                    step.classList.remove('pulse-animation');
+                }, 800);
+                
+                if (index === steps.length - 1) {
+                    setTimeout(() => {
+                        this.animationRunning = false;
+                    }, 800);
+                }
+            }, index * 600);
+        });
+    }
+    
+    resetAnimation() {
+        const steps = document.querySelectorAll('.function-step');
+        steps.forEach(step => {
+            step.classList.remove('animated', 'pulse-animation');
+        });
+        this.animationRunning = false;
+    }
+}
+
+// Enhanced Perceptron Diagram Class
+class EnhancedPerceptronDiagram {
+    constructor() {
+        this.setupCanvas();
+        this.dataFlowActive = false;
+    }
+    
+    setupCanvas() {
+        const canvas = document.getElementById('enhanced-perceptron-canvas');
+        if (!canvas) return;
+        
+        // Draw enhanced perceptron diagram
+        setTimeout(() => {
+            this.drawEnhancedDiagram();
+        }, 100);
+    }
+    
+    drawEnhancedDiagram() {
+        const canvas = document.getElementById('enhanced-perceptron-canvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Input layer
+        const inputPositions = [
+            { x: 100, y: 150, label: 'x₁', value: '0.8' },
+            { x: 100, y: 250, label: 'x₂', value: '0.6' },
+            { x: 100, y: 350, label: 'bias', value: '1.0' }
+        ];
+        
+        // Draw input nodes
+        inputPositions.forEach((pos, index) => {
+            // Node circle
+            ctx.fillStyle = index === 2 ? '#ef4444' : '#3b82f6';
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 25, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Node border
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Node label
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 14px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText(pos.label, pos.x, pos.y + 5);
+            
+            // Value label
+            ctx.fillStyle = '#374151';
+            ctx.font = '12px Inter';
+            ctx.fillText(pos.value, pos.x, pos.y + 45);
+        });
+        
+        // Weight connections
+        const weights = ['0.5', '-0.3', '0.2'];
+        inputPositions.forEach((pos, index) => {
+            const targetX = 350;
+            const targetY = 250;
+            
+            // Connection line
+            ctx.strokeStyle = '#6b7280';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(pos.x + 25, pos.y);
+            ctx.lineTo(targetX - 40, targetY);
+            ctx.stroke();
+            
+            // Weight label
+            const midX = (pos.x + 25 + targetX - 40) / 2;
+            const midY = (pos.y + targetY) / 2;
+            
+            ctx.fillStyle = 'white';
+            ctx.fillRect(midX - 15, midY - 10, 30, 20);
+            
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(midX - 15, midY - 10, 30, 20);
+            
+            ctx.fillStyle = '#10b981';
+            ctx.font = 'bold 12px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText(weights[index], midX, midY + 4);
+        });
+        
+        // Processing node (neuron)
+        ctx.fillStyle = '#8b5cf6';
+        ctx.beginPath();
+        ctx.arc(350, 250, 40, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        
+        // Sigma symbol
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 24px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('Σ', 350, 255);
+        
+        // Activation function
+        ctx.font = 'bold 12px Inter';
+        ctx.fillText('f', 350, 275);
+        
+        // Output connection
+        ctx.strokeStyle = '#6b7280';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(390, 250);
+        ctx.lineTo(500, 250);
+        ctx.stroke();
+        
+        // Arrow
+        ctx.fillStyle = '#6b7280';
+        ctx.beginPath();
+        ctx.moveTo(500, 250);
+        ctx.lineTo(485, 240);
+        ctx.lineTo(485, 260);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Output node
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(520, 250, 30, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 18px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('1', 520, 255);
+        
+        // Function labels
+        ctx.fillStyle = '#374151';
+        ctx.font = '14px Inter';
+        ctx.fillText('Inputs', 100, 120);
+        ctx.fillText('Weights', 220, 180);
+        ctx.fillText('Sum + Activation', 350, 320);
+        ctx.fillText('Output', 520, 220);
+    }
+    
+    animateDataFlow() {
+        if (this.dataFlowActive) return;
+        
+        this.dataFlowActive = true;
+        const canvas = document.getElementById('enhanced-perceptron-canvas');
+        if (!canvas) return;
+        
+        // Add flowing particles animation
+        this.drawFlowingParticles();
+        
+        setTimeout(() => {
+            this.dataFlowActive = false;
+        }, 3000);
+    }
+    
+    drawFlowingParticles() {
+        const canvas = document.getElementById('enhanced-perceptron-canvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const particles = [];
+        
+        // Create particles at input positions
+        const inputPositions = [150, 250, 350];
+        inputPositions.forEach(y => {
+            particles.push({
+                x: 125,
+                y: y,
+                targetX: 310,
+                targetY: 250,
+                progress: 0,
+                speed: 0.02 + Math.random() * 0.01
+            });
+        });
+        
+        const animateParticles = () => {
+            // Redraw the base diagram
+            this.drawEnhancedDiagram();
+            
+            // Draw and update particles
+            particles.forEach(particle => {
+                particle.progress += particle.speed;
+                
+                if (particle.progress <= 1) {
+                    const currentX = particle.x + (particle.targetX - particle.x) * particle.progress;
+                    const currentY = particle.y + (particle.targetY - particle.y) * particle.progress;
+                    
+                    // Draw particle
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.beginPath();
+                    ctx.arc(currentX, currentY, 6, 0, 2 * Math.PI);
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            });
+            
+            if (particles.some(p => p.progress < 1) && this.dataFlowActive) {
+                requestAnimationFrame(animateParticles);
+            }
+        };
+        
+        animateParticles();
+    }
+    
+    showLiveCalculations() {
+        // Highlight calculation steps in the live calculations section
+        const calcSteps = document.querySelectorAll('.calc-step');
+        
+        calcSteps.forEach((step, index) => {
+            setTimeout(() => {
+                step.classList.add('glow-animation');
+                
+                setTimeout(() => {
+                    step.classList.remove('glow-animation');
+                }, 1000);
+            }, index * 500);
+        });
+    }
+}
+
+// Boundary Visualizer Class
+class BoundaryVisualizer {
+    constructor() {
+        this.setupVisualization();
+    }
+    
+    setupVisualization() {
+        // Enhanced boundary visualization setup
+        setTimeout(() => {
+            this.initializeOverlay();
+        }, 100);
+    }
+    
+    initializeOverlay() {
+        const overlay = document.getElementById('boundary-overlay');
+        if (overlay) {
+            overlay.style.display = 'none'; // Hidden by default, shown in advanced mode
+        }
     }
 }
 
