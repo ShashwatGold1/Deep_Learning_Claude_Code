@@ -321,27 +321,71 @@
                 <!-- Enhanced Perceptron Page -->
                 <div class="page" id="perceptron-enhanced-page">
                     <div class="page-header">
-                        <h1>Perceptron Pro - Deep Understanding</h1>
-                        <p>Master perceptrons with interactive animations and detailed function explanations</p>
+                        <h1>⚡ Perceptron Training Simulator</h1>
+                        <p>Watch a real perceptron learn step-by-step with actual data and calculations</p>
                     </div>
 
                     <div class="lesson-content">
-                        <!-- Animation Control Panel -->
+                        <!-- Dataset Selection -->
                         <div class="lesson-section">
-                            <h2>🎮 Animation Controls</h2>
-                            <div class="animation-controls">
-                                <button class="control-btn play-btn" id="play-animation">
+                            <h2>📊 Training Dataset</h2>
+                            <div class="dataset-controls">
+                                <div class="dataset-selector">
+                                    <label>Choose Dataset:</label>
+                                    <select id="dataset-select">
+                                        <option value="and">AND Gate</option>
+                                        <option value="or">OR Gate</option>
+                                        <option value="custom">Custom Data</option>
+                                    </select>
+                                </div>
+                                <div class="learning-rate-control">
+                                    <label>Learning Rate (η):</label>
+                                    <input type="range" id="learning-rate" min="0.1" max="1.0" value="0.5" step="0.1">
+                                    <span id="learning-rate-value">0.5</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Training Data Table -->
+                            <div class="training-table-container">
+                                <table class="training-table" id="training-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Row</th>
+                                            <th>x₁</th>
+                                            <th>x₂</th>
+                                            <th>Target</th>
+                                            <th>Current Output</th>
+                                            <th>Error</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="training-table-body">
+                                        <!-- Data will be populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Training Controls -->
+                        <div class="lesson-section">
+                            <h2>🎮 Training Controls</h2>
+                            <div class="training-controls">
+                                <button class="control-btn start-btn" id="start-training">
                                     <span class="btn-icon">▶️</span>
-                                    Play Animation
+                                    Start Training
                                 </button>
-                                <button class="control-btn pause-btn" id="pause-animation">
+                                <button class="control-btn pause-btn" id="pause-training">
                                     <span class="btn-icon">⏸️</span>
                                     Pause
                                 </button>
-                                <button class="control-btn reset-btn" id="reset-animation">
+                                <button class="control-btn step-btn" id="step-training">
+                                    <span class="btn-icon">👆</span>
+                                    Step
+                                </button>
+                                <button class="control-btn reset-btn" id="reset-training">
                                     <span class="btn-icon">🔄</span>
                                     Reset
                                 </button>
+                                
                                 <div class="speed-control">
                                     <label>Animation Speed:</label>
                                     <input type="range" id="animation-speed" min="0.5" max="3" value="1" step="0.5">
@@ -350,106 +394,57 @@
                             </div>
                         </div>
 
-                        <!-- Interactive Perceptron Visualization -->
+                        <!-- Live Calculation Display -->
                         <div class="lesson-section">
-                            <h2>🔍 Data Flow Visualization</h2>
-                            <div class="enhanced-perceptron-container">
-                                <div class="data-flow-diagram">
-                                    <!-- Input Layer -->
-                                    <div class="input-layer">
-                                        <h3>Inputs</h3>
-                                        <div class="input-nodes">
-                                            <div class="enhanced-input-node" data-input="1">
-                                                <div class="node-circle">
-                                                    <span class="node-value" id="input-1-display">0.8</span>
-                                                </div>
-                                                <div class="node-label">x₁</div>
-                                                <div class="data-pulse" id="pulse-1"></div>
-                                            </div>
-                                            <div class="enhanced-input-node" data-input="2">
-                                                <div class="node-circle">
-                                                    <span class="node-value" id="input-2-display">0.6</span>
-                                                </div>
-                                                <div class="node-label">x₂</div>
-                                                <div class="data-pulse" id="pulse-2"></div>
-                                            </div>
-                                            <div class="enhanced-input-node" data-input="3">
-                                                <div class="node-circle">
-                                                    <span class="node-value" id="input-3-display">0.4</span>
-                                                </div>
-                                                <div class="node-label">x₃</div>
-                                                <div class="data-pulse" id="pulse-3"></div>
-                                            </div>
-                                            <div class="enhanced-input-node bias-input" data-input="bias">
-                                                <div class="node-circle">
-                                                    <span class="node-value" id="bias-display">0.1</span>
-                                                </div>
-                                                <div class="node-label">bias</div>
-                                                <div class="data-pulse" id="pulse-bias"></div>
+                            <h2>🧮 Live Calculations</h2>
+                            <div class="calculation-display-container">
+                                <div class="current-sample">
+                                    <h3>Current Training Sample: <span id="current-sample-info">Row 1</span></h3>
+                                    <div class="sample-data">
+                                        <span class="input-value">x₁ = <span id="current-x1">0</span></span>
+                                        <span class="input-value">x₂ = <span id="current-x2">0</span></span>
+                                        <span class="target-value">Target = <span id="current-target">0</span></span>
+                                    </div>
+                                </div>
+
+                                <div class="calculation-steps">
+                                    <div class="calc-step" id="step1">
+                                        <h4>1️⃣ Weight Multiplication</h4>
+                                        <div class="calc-details">
+                                            <div class="multiplication" id="mult1">x₁ × w₁ = <span class="highlight">0 × 0 = 0</span></div>
+                                            <div class="multiplication" id="mult2">x₂ × w₂ = <span class="highlight">0 × 0 = 0</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="calc-step" id="step2">
+                                        <h4>2️⃣ Weighted Sum (Z Calculation)</h4>
+                                        <div class="calc-details">
+                                            <div class="z-calculation" id="z-calc">
+                                                z = <span class="highlight">0 + 0 + 0.0</span> = <span class="z-result">0.0</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Weight Layer -->
-                                    <div class="weight-layer">
-                                        <h3>Weights</h3>
-                                        <div class="weight-connections">
-                                            <div class="weight-connection" data-weight="1">
-                                                <div class="weight-value" id="weight-1-display">0.7</div>
-                                                <div class="connection-line" id="line-1">
-                                                    <div class="data-flow" id="flow-1"></div>
-                                                </div>
-                                            </div>
-                                            <div class="weight-connection" data-weight="2">
-                                                <div class="weight-value" id="weight-2-display">0.5</div>
-                                                <div class="connection-line" id="line-2">
-                                                    <div class="data-flow" id="flow-2"></div>
-                                                </div>
-                                            </div>
-                                            <div class="weight-connection" data-weight="3">
-                                                <div class="weight-value" id="weight-3-display">-0.3</div>
-                                                <div class="connection-line" id="line-3">
-                                                    <div class="data-flow" id="flow-3"></div>
-                                                </div>
-                                            </div>
-                                            <div class="weight-connection bias-connection" data-weight="bias">
-                                                <div class="weight-value" id="weight-bias-display">0.1</div>
-                                                <div class="connection-line" id="line-bias">
-                                                    <div class="data-flow" id="flow-bias"></div>
-                                                </div>
+                                    <div class="calc-step" id="step3">
+                                        <h4>3️⃣ Activation Function</h4>
+                                        <div class="calc-details">
+                                            <div class="activation-calc" id="activation-calc">
+                                                f(<span class="z-input">0.0</span>) = <span class="output-result">0</span>
+                                                <span class="activation-reason">(since 0.0 &lt; 0)</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Processing Layer -->
-                                    <div class="processing-layer">
-                                        <h3>Processing</h3>
-                                        <div class="neuron-container">
-                                            <div class="sum-function">
-                                                <div class="function-symbol">Σ</div>
-                                                <div class="calculation-display" id="sum-calculation">
-                                                    0.8×0.7 + 0.6×0.5 + 0.4×(-0.3) + 0.1 = 0.74
-                                                </div>
+                                    <div class="calc-step" id="step4">
+                                        <h4>4️⃣ Error & Weight Update</h4>
+                                        <div class="calc-details">
+                                            <div class="error-calc" id="error-calc">
+                                                Error = Target - Output = <span class="error-result">0 - 0 = 0</span>
                                             </div>
-                                            <div class="activation-arrow">→</div>
-                                            <div class="activation-function">
-                                                <div class="function-symbol">f(z)</div>
-                                                <div class="function-display" id="activation-display">
-                                                    Step Function
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Output Layer -->
-                                    <div class="output-layer">
-                                        <h3>Output</h3>
-                                        <div class="output-node">
-                                            <div class="output-circle">
-                                                <span class="output-value" id="final-output">1</span>
-                                            </div>
-                                            <div class="output-explanation" id="output-reasoning">
-                                                z = 0.74 ≥ 0 → Output = 1
+                                            <div class="weight-update" id="weight-update">
+                                                <div class="weight-change">w₁: <span class="old-weight">0.0</span> → <span class="new-weight">0.0</span></div>
+                                                <div class="weight-change">w₂: <span class="old-weight">0.0</span> → <span class="new-weight">0.0</span></div>
+                                                <div class="weight-change">bias: <span class="old-weight">0.0</span> → <span class="new-weight">0.0</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -457,236 +452,94 @@
                             </div>
                         </div>
 
-                        <!-- Interactive Parameter Controls -->
+                        <!-- Current Weights Display -->
                         <div class="lesson-section">
-                            <h2>🎛️ Interactive Parameters</h2>
-                            <div class="parameter-controls">
-                                <div class="parameter-section">
-                                    <h3>Input Values</h3>
-                                    <div class="control-grid">
-                                        <div class="parameter-control">
-                                            <label>Input 1 (x₁):</label>
-                                            <input type="range" id="enhanced-input1" min="0" max="1" value="0.8" step="0.1">
-                                            <span class="param-value" id="enhanced-input1-value">0.8</span>
-                                        </div>
-                                        <div class="parameter-control">
-                                            <label>Input 2 (x₂):</label>
-                                            <input type="range" id="enhanced-input2" min="0" max="1" value="0.6" step="0.1">
-                                            <span class="param-value" id="enhanced-input2-value">0.6</span>
-                                        </div>
-                                        <div class="parameter-control">
-                                            <label>Input 3 (x₃):</label>
-                                            <input type="range" id="enhanced-input3" min="0" max="1" value="0.4" step="0.1">
-                                            <span class="param-value" id="enhanced-input3-value">0.4</span>
-                                        </div>
+                            <h2>⚖️ Current Weights</h2>
+                            <div class="weights-display">
+                                <div class="weight-item">
+                                    <label>w₁:</label>
+                                    <span class="weight-value" id="weight1-display">0.0</span>
+                                </div>
+                                <div class="weight-item">
+                                    <label>w₂:</label>
+                                    <span class="weight-value" id="weight2-display">0.0</span>
+                                </div>
+                                <div class="weight-item">
+                                    <label>bias:</label>
+                                    <span class="weight-value" id="bias-display">0.0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Training Progress -->
+                        <div class="lesson-section">
+                            <h2>📈 Training Progress</h2>
+                            <div class="progress-display">
+                                <div class="progress-stats">
+                                    <div class="stat-item">
+                                        <label>Epoch:</label>
+                                        <span id="current-epoch">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <label>Errors:</label>
+                                        <span id="error-count">0</span> / <span id="total-samples">4</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <label>Status:</label>
+                                        <span id="training-status" class="status-ready">Ready</span>
                                     </div>
                                 </div>
                                 
-                                <div class="parameter-section">
-                                    <h3>Weights</h3>
-                                    <div class="control-grid">
-                                        <div class="parameter-control">
-                                            <label>Weight 1 (w₁):</label>
-                                            <input type="range" id="enhanced-weight1" min="-1" max="1" value="0.7" step="0.1">
-                                            <span class="param-value" id="enhanced-weight1-value">0.7</span>
-                                        </div>
-                                        <div class="parameter-control">
-                                            <label>Weight 2 (w₂):</label>
-                                            <input type="range" id="enhanced-weight2" min="-1" max="1" value="0.5" step="0.1">
-                                            <span class="param-value" id="enhanced-weight2-value">0.5</span>
-                                        </div>
-                                        <div class="parameter-control">
-                                            <label>Weight 3 (w₃):</label>
-                                            <input type="range" id="enhanced-weight3" min="-1" max="1" value="-0.3" step="0.1">
-                                            <span class="param-value" id="enhanced-weight3-value">-0.3</span>
-                                        </div>
-                                        <div class="parameter-control">
-                                            <label>Bias (b):</label>
-                                            <input type="range" id="enhanced-bias" min="-1" max="1" value="0.1" step="0.1">
-                                            <span class="param-value" id="enhanced-bias-value">0.1</span>
-                                        </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="progress-text" id="progress-text">Ready to start training</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Decision Boundary Visualization -->
+                        <div class="lesson-section">
+                            <h2>🎯 Decision Boundary</h2>
+                            <div class="boundary-container">
+                                <canvas id="decision-boundary-canvas" width="400" height="400"></canvas>
+                                <div class="boundary-legend">
+                                    <div class="legend-item">
+                                        <div class="legend-color class0"></div>
+                                        <span>Target = 0</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-color class1"></div>
+                                        <span>Target = 1</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <div class="legend-line"></div>
+                                        <span>Decision Boundary</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Step-by-Step Explanation -->
+                        <!-- Learning Explanation -->
                         <div class="lesson-section">
-                            <h2>📚 How It Works - Step by Step</h2>
-                            <div class="steps-container">
-                                <div class="step-card active" data-step="1">
-                                    <div class="step-number">1</div>
-                                    <div class="step-content">
-                                        <h3>Input Reception</h3>
-                                        <p>The perceptron receives input signals (x₁, x₂, x₃) representing features of the data. Each input carries information about different aspects of the problem.</p>
-                                        <div class="step-visual">
-                                            <div class="mini-inputs">
-                                                <span class="mini-input">x₁=0.8</span>
-                                                <span class="mini-input">x₂=0.6</span>
-                                                <span class="mini-input">x₃=0.4</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <h2>📚 How Perceptron Learning Works</h2>
+                            <div class="learning-explanation">
+                                <div class="explanation-step">
+                                    <h3>1. Forward Pass</h3>
+                                    <p>Calculate output using current weights: z = w₁x₁ + w₂x₂ + bias, then apply step function</p>
                                 </div>
-
-                                <div class="step-card" data-step="2">
-                                    <div class="step-number">2</div>
-                                    <div class="step-content">
-                                        <h3>Weight Multiplication</h3>
-                                        <p>Each input is multiplied by its corresponding weight. Weights determine how important each input is for the final decision.</p>
-                                        <div class="step-visual">
-                                            <div class="calculations">
-                                                <span class="calc">0.8 × 0.7 = 0.56</span>
-                                                <span class="calc">0.6 × 0.5 = 0.30</span>
-                                                <span class="calc">0.4 × (-0.3) = -0.12</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="explanation-step">
+                                    <h3>2. Error Calculation</h3>
+                                    <p>Compare predicted output with target: error = target - output</p>
                                 </div>
-
-                                <div class="step-card" data-step="3">
-                                    <div class="step-number">3</div>
-                                    <div class="step-content">
-                                        <h3>Summation + Bias</h3>
-                                        <p>All weighted inputs are summed together, and the bias is added. The bias helps shift the decision boundary.</p>
-                                        <div class="step-visual">
-                                            <div class="sum-calc">
-                                                z = 0.56 + 0.30 + (-0.12) + 0.1 = 0.74
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="explanation-step">
+                                    <h3>3. Weight Update</h3>
+                                    <p>Adjust weights based on error: w_new = w_old + η × error × input</p>
                                 </div>
-
-                                <div class="step-card" data-step="4">
-                                    <div class="step-number">4</div>
-                                    <div class="step-content">
-                                        <h3>Activation Function</h3>
-                                        <p>The sum passes through an activation function (step function) which produces the final binary output.</p>
-                                        <div class="step-visual">
-                                            <div class="activation-calc">
-                                                f(0.74) = 1 (since 0.74 ≥ 0)
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="step-navigation">
-                                <button class="step-btn" id="prev-step">← Previous</button>
-                                <span class="step-indicator" id="step-indicator">Step 1 of 4</span>
-                                <button class="step-btn" id="next-step">Next →</button>
-                            </div>
-                        </div>
-
-                        <!-- Function Deep Dive -->
-                        <div class="lesson-section">
-                            <h2>🧮 Mathematical Functions Explained</h2>
-                            <div class="function-tabs">
-                                <button class="function-tab active" data-function="weighted-sum">Weighted Sum</button>
-                                <button class="function-tab" data-function="step-function">Step Function</button>
-                                <button class="function-tab" data-function="decision-boundary">Decision Boundary</button>
-                            </div>
-
-                            <div class="function-content">
-                                <div class="function-panel active" id="weighted-sum-panel">
-                                    <h3>Weighted Sum Function</h3>
-                                    <div class="formula-explanation">
-                                        <div class="formula-box">
-                                            z = Σ(wᵢ × xᵢ) + b = w₁x₁ + w₂x₂ + w₃x₃ + b
-                                        </div>
-                                        <p><strong>Purpose:</strong> Combines all inputs with their importance weights</p>
-                                        <p><strong>Components:</strong></p>
-                                        <ul>
-                                            <li><strong>wᵢ:</strong> Weight for input i (learned parameter)</li>
-                                            <li><strong>xᵢ:</strong> Input value i (data feature)</li>
-                                            <li><strong>b:</strong> Bias term (shifts the decision boundary)</li>
-                                        </ul>
-                                        <div class="live-calculation" id="live-weighted-sum">
-                                            Current: z = (0.7×0.8) + (0.5×0.6) + (-0.3×0.4) + 0.1 = 0.74
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="function-panel" id="step-function-panel">
-                                    <h3>Step Activation Function</h3>
-                                    <div class="formula-explanation">
-                                        <div class="formula-box">
-                                            f(z) = { 1 if z ≥ 0, 0 if z < 0 }
-                                        </div>
-                                        <p><strong>Purpose:</strong> Converts continuous input to binary output</p>
-                                        <div class="step-function-graph">
-                                            <canvas id="step-function-canvas" width="300" height="200"></canvas>
-                                        </div>
-                                        <p><strong>Characteristics:</strong></p>
-                                        <ul>
-                                            <li>Sharp threshold at z = 0</li>
-                                            <li>Output is either 0 or 1</li>
-                                            <li>Creates linear decision boundary</li>
-                                        </ul>
-                                        <div class="live-calculation" id="live-step-function">
-                                            Current: f(0.74) = 1 (since 0.74 ≥ 0)
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="function-panel" id="decision-boundary-panel">
-                                    <h3>Decision Boundary</h3>
-                                    <div class="formula-explanation">
-                                        <div class="formula-box">
-                                            Decision line: w₁x₁ + w₂x₂ + b = 0
-                                        </div>
-                                        <p><strong>Purpose:</strong> Separates the input space into two regions</p>
-                                        <div class="boundary-visualization">
-                                            <canvas id="decision-boundary-canvas" width="300" height="300"></canvas>
-                                        </div>
-                                        <p><strong>Properties:</strong></p>
-                                        <ul>
-                                            <li>Points above line: Output = 1</li>
-                                            <li>Points below line: Output = 0</li>
-                                            <li>Weights determine line slope</li>
-                                            <li>Bias shifts line position</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Training Visualization -->
-                        <div class="lesson-section">
-                            <h2>🎯 Training Process (Conceptual)</h2>
-                            <div class="training-explanation">
-                                <div class="training-steps">
-                                    <div class="training-step">
-                                        <div class="step-icon">📊</div>
-                                        <h3>1. Initialize Weights</h3>
-                                        <p>Start with random small weights</p>
-                                    </div>
-                                    <div class="training-arrow">→</div>
-                                    <div class="training-step">
-                                        <div class="step-icon">🎯</div>
-                                        <h3>2. Make Prediction</h3>
-                                        <p>Calculate output with current weights</p>
-                                    </div>
-                                    <div class="training-arrow">→</div>
-                                    <div class="training-step">
-                                        <div class="step-icon">📐</div>
-                                        <h3>3. Calculate Error</h3>
-                                        <p>Compare prediction with true answer</p>
-                                    </div>
-                                    <div class="training-arrow">→</div>
-                                    <div class="training-step">
-                                        <div class="step-icon">🔧</div>
-                                        <h3>4. Adjust Weights</h3>
-                                        <p>Update weights to reduce error</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="training-formula">
-                                    <h3>Weight Update Rule:</h3>
-                                    <div class="formula-box">
-                                        wᵢ(new) = wᵢ(old) + η × (target - output) × xᵢ
-                                    </div>
-                                    <p>Where η (eta) is the learning rate</p>
+                                <div class="explanation-step">
+                                    <h3>4. Repeat</h3>
+                                    <p>Continue until all samples are classified correctly (or max epochs reached)</p>
                                 </div>
                             </div>
                         </div>
@@ -694,7 +547,7 @@
 
                     <div class="controls">
                         <button class="btn btn-secondary" id="back-to-basic">← Basic Perceptron</button>
-                        <button class="btn btn-primary" id="next-advanced-lesson">Advanced Topics →</button>
+                        <button class="btn btn-primary" id="export-results">Export Results →</button>
                     </div>
                 </div>
 

@@ -45,10 +45,10 @@ navItems.forEach(item => {
         if (targetPage) {
             targetPage.classList.add('active');
             
-            // Initialize enhanced perceptron demo if needed
-            if (pageId === 'perceptron-enhanced-page' && !enhancedPerceptronDemo) {
+            // Initialize training simulator if needed
+            if (pageId === 'perceptron-enhanced-page' && !trainingSimulator) {
                 setTimeout(() => {
-                    enhancedPerceptronDemo = new EnhancedPerceptronDemo();
+                    trainingSimulator = new PerceptronTrainingSimulator();
                 }, 100);
             }
         }
@@ -141,7 +141,501 @@ document.addEventListener('DOMContentLoaded', () => {
     const demo = new PerceptronDemo();
 });
 
-// Enhanced Perceptron Demo Class
+// Perceptron Training Simulator Class
+class PerceptronTrainingSimulator {
+    constructor() {
+        this.datasets = {
+            and: [
+                { x1: 0, x2: 0, target: 0 },
+                { x1: 0, x2: 1, target: 0 },
+                { x1: 1, x2: 0, target: 0 },
+                { x1: 1, x2: 1, target: 1 }
+            ],
+            or: [
+                { x1: 0, x2: 0, target: 0 },
+                { x1: 0, x2: 1, target: 1 },
+                { x1: 1, x2: 0, target: 1 },
+                { x1: 1, x2: 1, target: 1 }
+            ],
+            custom: [
+                { x1: 0.2, x2: 0.1, target: 0 },
+                { x1: 0.3, x2: 0.8, target: 1 },
+                { x1: 0.7, x2: 0.2, target: 0 },
+                { x1: 0.8, x2: 0.9, target: 1 }
+            ]
+        };
+        
+        this.currentDataset = 'and';
+        this.learningRate = 0.5;
+        this.weights = { w1: 0.0, w2: 0.0, bias: 0.0 };
+        this.epoch = 0;
+        this.currentSampleIndex = 0;
+        this.isTraining = false;
+        this.isPaused = false;
+        this.animationSpeed = 1;
+        this.maxEpochs = 100;
+        
+        this.trainingData = [];
+        this.trainingHistory = [];
+        
+        this.initializeEventListeners();
+        this.loadDataset();
+        this.resetTraining();
+    }
+    
+    initializeEventListeners() {
+        // Dataset selection
+        document.getElementById('dataset-select')?.addEventListener('change', (e) => {
+            this.currentDataset = e.target.value;
+            this.loadDataset();
+            this.resetTraining();
+        });
+        
+        // Learning rate
+        const learningRateSlider = document.getElementById('learning-rate');
+        if (learningRateSlider) {
+            learningRateSlider.addEventListener('input', (e) => {
+                this.learningRate = parseFloat(e.target.value);
+                document.getElementById('learning-rate-value').textContent = this.learningRate.toFixed(1);
+            });
+        }
+        
+        // Training controls
+        document.getElementById('start-training')?.addEventListener('click', () => this.startTraining());
+        document.getElementById('pause-training')?.addEventListener('click', () => this.pauseTraining());
+        document.getElementById('step-training')?.addEventListener('click', () => this.stepTraining());
+        document.getElementById('reset-training')?.addEventListener('click', () => this.resetTraining());
+        
+        // Animation speed
+        const speedControl = document.getElementById('animation-speed');
+        if (speedControl) {
+            speedControl.addEventListener('input', (e) => {
+                this.animationSpeed = parseFloat(e.target.value);
+                document.getElementById('speed-value').textContent = this.animationSpeed + 'x';
+            });
+        }
+        
+        // Navigation
+        document.getElementById('back-to-basic')?.addEventListener('click', () => {
+            this.navigateToPage('perceptron');
+        });
+        
+        document.getElementById('export-results')?.addEventListener('click', () => {
+            this.exportResults();
+        });
+    }
+    
+    loadDataset() {
+        this.trainingData = this.datasets[this.currentDataset].map((sample, index) => ({
+            ...sample,
+            output: 0,
+            error: 0,
+            row: index + 1
+        }));
+        
+        this.updateDataTable();
+        this.updateTotalSamples();
+        this.drawDecisionBoundary();
+    }
+    
+    updateDataTable() {
+        const tbody = document.getElementById('training-table-body');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '';
+        
+        this.trainingData.forEach((sample, index) => {
+            const row = document.createElement('tr');
+            if (index === this.currentSampleIndex && this.isTraining) {
+                row.classList.add('current-row');
+            }
+            
+            row.innerHTML = `
+                <td class="row-number">${sample.row}</td>
+                <td class="input-col">${sample.x1}</td>
+                <td class="input-col">${sample.x2}</td>
+                <td class="target-col">${sample.target}</td>
+                <td class="output-col">${sample.output}</td>
+                <td class="error-col ${sample.error === 0 ? 'error-0' : 'error-nonzero'}">${sample.error}</td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    }
+    
+    updateTotalSamples() {
+        document.getElementById('total-samples').textContent = this.trainingData.length;
+    }
+    
+    startTraining() {
+        if (this.isTraining && !this.isPaused) return;
+        
+        this.isTraining = true;
+        this.isPaused = false;
+        
+        document.getElementById('start-training').disabled = true;
+        document.getElementById('training-status').textContent = 'Training';
+        document.getElementById('training-status').className = 'status-training';
+        
+        this.trainNextStep();
+    }
+    
+    pauseTraining() {
+        this.isPaused = true;
+        document.getElementById('start-training').disabled = false;
+    }
+    
+    stepTraining() {
+        if (!this.isTraining) {
+            this.isTraining = true;
+            document.getElementById('training-status').textContent = 'Training';
+            document.getElementById('training-status').className = 'status-training';
+        }
+        
+        this.trainNextStep();
+        this.isPaused = true;
+        document.getElementById('start-training').disabled = false;
+    }
+    
+    resetTraining() {
+        this.isTraining = false;
+        this.isPaused = false;
+        this.epoch = 0;
+        this.currentSampleIndex = 0;
+        this.weights = { w1: 0.0, w2: 0.0, bias: 0.0 };
+        this.trainingHistory = [];
+        
+        // Reset training data outputs and errors
+        this.trainingData.forEach(sample => {
+            sample.output = 0;
+            sample.error = 0;
+        });
+        
+        document.getElementById('start-training').disabled = false;
+        document.getElementById('training-status').textContent = 'Ready';
+        document.getElementById('training-status').className = 'status-ready';
+        
+        this.updateDisplays();
+        this.updateDataTable();
+        this.drawDecisionBoundary();
+    }
+    
+    trainNextStep() {
+        if (!this.isTraining || this.isPaused) return;
+        
+        // Get current sample
+        const sample = this.trainingData[this.currentSampleIndex];
+        
+        // Forward pass
+        const z = this.weights.w1 * sample.x1 + this.weights.w2 * sample.x2 + this.weights.bias;
+        const output = z >= 0 ? 1 : 0;
+        const error = sample.target - output;
+        
+        // Update sample data
+        sample.output = output;
+        sample.error = error;
+        
+        // Update displays with animation
+        this.animateCalculationStep(sample, z, output, error);
+        
+        // Weight update if there's an error
+        if (error !== 0) {
+            const oldWeights = { ...this.weights };
+            
+            this.weights.w1 += this.learningRate * error * sample.x1;
+            this.weights.w2 += this.learningRate * error * sample.x2;
+            this.weights.bias += this.learningRate * error;
+            
+            this.animateWeightUpdate(oldWeights, this.weights);
+        }
+        
+        // Move to next sample
+        this.currentSampleIndex++;
+        
+        // Check if epoch is complete
+        if (this.currentSampleIndex >= this.trainingData.length) {
+            this.currentSampleIndex = 0;
+            this.epoch++;
+            
+            // Check for convergence
+            const totalErrors = this.trainingData.reduce((sum, s) => sum + Math.abs(s.error), 0);
+            
+            if (totalErrors === 0 || this.epoch >= this.maxEpochs) {
+                this.completeTraining(totalErrors === 0);
+                return;
+            }
+        }
+        
+        this.updateDisplays();
+        this.updateDataTable();
+        this.drawDecisionBoundary();
+        
+        // Continue training if not paused
+        if (!this.isPaused) {
+            setTimeout(() => this.trainNextStep(), 1000 / this.animationSpeed);
+        }
+    }
+    
+    animateCalculationStep(sample, z, output, error) {
+        // Highlight current calculation steps
+        this.highlightCalculationStep('step1');
+        
+        // Update current sample info
+        document.getElementById('current-sample-info').textContent = `Row ${sample.row}`;
+        document.getElementById('current-x1').textContent = sample.x1;
+        document.getElementById('current-x2').textContent = sample.x2;
+        document.getElementById('current-target').textContent = sample.target;
+        
+        setTimeout(() => {
+            // Step 1: Weight Multiplication
+            document.getElementById('mult1').innerHTML = 
+                `x₁ × w₁ = <span class="highlight">${sample.x1} × ${this.weights.w1.toFixed(2)} = ${(sample.x1 * this.weights.w1).toFixed(2)}</span>`;
+            document.getElementById('mult2').innerHTML = 
+                `x₂ × w₂ = <span class="highlight">${sample.x2} × ${this.weights.w2.toFixed(2)} = ${(sample.x2 * this.weights.w2).toFixed(2)}</span>`;
+            
+            this.highlightCalculationStep('step2');
+        }, 200 / this.animationSpeed);
+        
+        setTimeout(() => {
+            // Step 2: Weighted Sum
+            const term1 = (sample.x1 * this.weights.w1).toFixed(2);
+            const term2 = (sample.x2 * this.weights.w2).toFixed(2);
+            const biasStr = this.weights.bias >= 0 ? `+${this.weights.bias.toFixed(2)}` : this.weights.bias.toFixed(2);
+            
+            document.getElementById('z-calc').innerHTML = 
+                `z = <span class="highlight">${term1} + ${term2} ${biasStr}</span> = <span class="z-result">${z.toFixed(2)}</span>`;
+            
+            this.highlightCalculationStep('step3');
+        }, 400 / this.animationSpeed);
+        
+        setTimeout(() => {
+            // Step 3: Activation Function
+            const comparison = z >= 0 ? '≥' : '&lt;';
+            const reason = z >= 0 ? `since ${z.toFixed(2)} ≥ 0` : `since ${z.toFixed(2)} < 0`;
+            
+            document.getElementById('activation-calc').innerHTML = 
+                `f(<span class="z-input">${z.toFixed(2)}</span>) = <span class="output-result">${output}</span>
+                <span class="activation-reason">(${reason})</span>`;
+            
+            this.highlightCalculationStep('step4');
+        }, 600 / this.animationSpeed);
+        
+        setTimeout(() => {
+            // Step 4: Error Calculation
+            document.getElementById('error-calc').innerHTML = 
+                `Error = Target - Output = <span class="error-result">${sample.target} - ${output} = ${error}</span>`;
+        }, 800 / this.animationSpeed);
+    }
+    
+    animateWeightUpdate(oldWeights, newWeights) {
+        setTimeout(() => {
+            document.querySelector('.weight-change:nth-child(1)').innerHTML = 
+                `w₁: <span class="old-weight">${oldWeights.w1.toFixed(3)}</span> → <span class="new-weight">${newWeights.w1.toFixed(3)}</span>`;
+            document.querySelector('.weight-change:nth-child(2)').innerHTML = 
+                `w₂: <span class="old-weight">${oldWeights.w2.toFixed(3)}</span> → <span class="new-weight">${newWeights.w2.toFixed(3)}</span>`;
+            document.querySelector('.weight-change:nth-child(3)').innerHTML = 
+                `bias: <span class="old-weight">${oldWeights.bias.toFixed(3)}</span> → <span class="new-weight">${newWeights.bias.toFixed(3)}</span>`;
+        }, 1000 / this.animationSpeed);
+    }
+    
+    highlightCalculationStep(stepId) {
+        // Remove active class from all steps
+        document.querySelectorAll('.calc-step').forEach(step => step.classList.remove('active'));
+        
+        // Add active class to current step
+        document.getElementById(stepId)?.classList.add('active');
+    }
+    
+    updateDisplays() {
+        // Update current weights
+        document.getElementById('weight1-display').textContent = this.weights.w1.toFixed(3);
+        document.getElementById('weight2-display').textContent = this.weights.w2.toFixed(3);
+        document.getElementById('bias-display').textContent = this.weights.bias.toFixed(3);
+        
+        // Update epoch and error count
+        document.getElementById('current-epoch').textContent = this.epoch;
+        
+        const totalErrors = this.trainingData.reduce((sum, s) => sum + Math.abs(s.error), 0);
+        document.getElementById('error-count').textContent = totalErrors;
+        
+        // Update progress bar
+        const progress = this.epoch / this.maxEpochs * 100;
+        document.getElementById('progress-fill').style.width = `${Math.min(progress, 100)}%`;
+        
+        if (totalErrors === 0) {
+            document.getElementById('progress-text').textContent = 'Training completed successfully!';
+        } else {
+            document.getElementById('progress-text').textContent = `Epoch ${this.epoch}, ${totalErrors} errors remaining`;
+        }
+    }
+    
+    completeTraining(converged) {
+        this.isTraining = false;
+        this.isPaused = false;
+        
+        document.getElementById('start-training').disabled = false;
+        
+        if (converged) {
+            document.getElementById('training-status').textContent = 'Converged';
+            document.getElementById('training-status').className = 'status-converged';
+            document.getElementById('progress-text').textContent = `Training completed in ${this.epoch} epochs!`;
+        } else {
+            document.getElementById('training-status').textContent = 'Max Epochs';
+            document.getElementById('training-status').className = 'status-failed';
+            document.getElementById('progress-text').textContent = `Max epochs (${this.maxEpochs}) reached`;
+        }
+        
+        this.updateDisplays();
+        this.updateDataTable();
+    }
+    
+    drawDecisionBoundary() {
+        const canvas = document.getElementById('decision-boundary-canvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+        
+        // Set up coordinate system (margin of 40 pixels)
+        const margin = 40;
+        const plotWidth = width - 2 * margin;
+        const plotHeight = height - 2 * margin;
+        
+        // Draw axes
+        ctx.strokeStyle = '#6b7280';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(margin, height - margin);
+        ctx.lineTo(width - margin, height - margin);
+        ctx.moveTo(margin, height - margin);
+        ctx.lineTo(margin, margin);
+        ctx.stroke();
+        
+        // Draw axis labels
+        ctx.fillStyle = '#374151';
+        ctx.font = '14px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('x₁', width - 20, height - 10);
+        ctx.save();
+        ctx.translate(15, height / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText('x₂', 0, 0);
+        ctx.restore();
+        
+        // Draw grid lines
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 5; i++) {
+            const x = margin + (i / 5) * plotWidth;
+            const y = height - margin - (i / 5) * plotHeight;
+            
+            ctx.beginPath();
+            ctx.moveTo(x, height - margin);
+            ctx.lineTo(x, margin);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(margin, y);
+            ctx.lineTo(width - margin, y);
+            ctx.stroke();
+            
+            // Add labels
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '10px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText((i / 5).toFixed(1), x, height - margin + 15);
+            ctx.fillText((1 - i / 5).toFixed(1), margin - 15, y + 3);
+        }
+        
+        // Draw decision boundary if weights are not all zero
+        if (this.weights.w1 !== 0 || this.weights.w2 !== 0) {
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            // Decision boundary: w1*x1 + w2*x2 + bias = 0
+            // Solve for x2: x2 = -(w1*x1 + bias) / w2
+            if (Math.abs(this.weights.w2) > 0.001) {
+                const x1_start = 0;
+                const x1_end = 1;
+                const x2_start = -(this.weights.w1 * x1_start + this.weights.bias) / this.weights.w2;
+                const x2_end = -(this.weights.w1 * x1_end + this.weights.bias) / this.weights.w2;
+                
+                const canvasX1 = margin + x1_start * plotWidth;
+                const canvasY1 = height - margin - x2_start * plotHeight;
+                const canvasX2 = margin + x1_end * plotWidth;
+                const canvasY2 = height - margin - x2_end * plotHeight;
+                
+                ctx.moveTo(canvasX1, canvasY1);
+                ctx.lineTo(canvasX2, canvasY2);
+            } else if (Math.abs(this.weights.w1) > 0.001) {
+                // Vertical line: x1 = -bias/w1
+                const x1_line = -this.weights.bias / this.weights.w1;
+                if (x1_line >= 0 && x1_line <= 1) {
+                    const canvasX = margin + x1_line * plotWidth;
+                    ctx.moveTo(canvasX, margin);
+                    ctx.lineTo(canvasX, height - margin);
+                }
+            }
+            ctx.stroke();
+        }
+        
+        // Draw training data points
+        this.trainingData.forEach(sample => {
+            const canvasX = margin + sample.x1 * plotWidth;
+            const canvasY = height - margin - sample.x2 * plotHeight;
+            
+            ctx.fillStyle = sample.target === 0 ? '#ef4444' : '#10b981';
+            ctx.beginPath();
+            ctx.arc(canvasX, canvasY, 8, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Add border
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        });
+    }
+    
+    exportResults() {
+        const results = {
+            dataset: this.currentDataset,
+            finalWeights: this.weights,
+            epochs: this.epoch,
+            learningRate: this.learningRate,
+            trainingData: this.trainingData,
+            converged: this.trainingData.every(s => s.error === 0)
+        };
+        
+        const dataStr = JSON.stringify(results, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `perceptron_results_${this.currentDataset}_epoch${this.epoch}.json`;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+    }
+    
+    navigateToPage(pageId) {
+        const navItems = document.querySelectorAll('.nav-item');
+        const pages = document.querySelectorAll('.page');
+        
+        navItems.forEach(nav => nav.classList.remove('active'));
+        pages.forEach(page => page.classList.remove('active'));
+        
+        document.querySelector(`[data-page="${pageId}"]`)?.classList.add('active');
+        document.getElementById(`${pageId}-page`)?.classList.add('active');
+    }
+}
+
+// Enhanced Perceptron Demo Class (keeping for backward compatibility)
 class EnhancedPerceptronDemo {
     constructor() {
         this.isAnimating = false;
@@ -558,8 +1052,8 @@ class EnhancedPerceptronDemo {
     }
 }
 
-// Initialize enhanced perceptron demo when page loads
-let enhancedPerceptronDemo = null;
+// Initialize training simulator
+let trainingSimulator = null;
 
 // Logo click handler
 document.getElementById('app-logo').addEventListener('click', () => {
